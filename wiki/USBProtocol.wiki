@@ -26,11 +26,12 @@ To read data from the device a CLASS_INTERFACE message containing 8 bytes is sen
 
 Example (Read from offset 0x0040): 
 {{{
--->  a1  00  40  20  a1  00  40  20  
-     64  00  64  80  a0  28  80  25  
-     a0  28  80  25  03  36  00  05  
-     6b  00  00  00  00  f4  01  12  
-     00  00  00  00  00  00  00  00  
+Send:    a1  00  40  20  a1  00  40  20  
+
+Receive: 64  00  64  80  a0  28  80  25  
+         a0  28  80  25  03  36  00  05  
+         6b  00  00  00  00  f4  01  12  
+         00  00  00  00  00  00  00  00  
 }}}
 
 After this message has been sent we can now read 32 bytes from the device.
@@ -53,6 +54,13 @@ To write a single byte, we send an 8 byte message with the following layout.
 || 6       || 0x00 || ||
 || 7       || 0x20 || ||
 
+Example (Write 0x01 to offset 0x0018, which sets the timezone to CET+1): 
+{{{
+Send:    a2  00  18  20  a2  01  00  20  
+
+Receive: a5  a5  a5  a5  a5  a5  a5  a5  
+}}}
+
 == Writing in bulk ==
 
 To write to the device, the exact same method as reading is used, except that the first byte is 0xA0 instead of 0xA1. And instead of reading 32 bytes, we write the 32 bytes we want to change at that memory address.
@@ -60,3 +68,14 @@ To write to the device, the exact same method as reading is used, except that th
 After the data has been written, we should read 8 bytes which should all be 0xA5, meaning the device acknowledges the write.
 
 To further indicate to the device a setting has been changed, we should write 0xAA to offset 0x1A (using the single byte method described above), which in turn is also acknowledged by an 8 byte 0xA5 message.
+
+Example (Write 32 bytes of data to offset 0x0040):
+{{{
+Send:    a0  00  40  20  a0  00  40  20  
+Send:    64  00  64  80  a0  28  80  25  
+Send:    a0  28  80  25  03  36  00  05
+Send:    6b  00  00  00  00  f4  01  12  
+Send:    00  00  00  00  00  00  00  00  
+
+Receive: a5  a5  a5  a5  a5  a5  a5  a5  
+}}}
