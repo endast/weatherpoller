@@ -24,20 +24,27 @@ To read data from the device a CLASS_INTERFACE message containing 8 bytes is sen
 || 3       || 0x20 || Indicates end of offset. ||
 || ...     || ... || The same bytes are repeated again. ||
 
-Example: 0xA1 0x00 0x40 0x20 0xA1 0x00 0x40 0x20
+Example (Read from offset 0x0040): 
+{{{
+-->  a1  00  40  20  a1  00  40  20  
+     64  00  64  80  a0  28  80  25  
+     a0  28  80  25  03  36  00  05  
+     6b  00  00  00  00  f4  01  12  
+     00  00  00  00  00  00  00  00  
+}}}
 
 After this message has been sent we can now read 32 bytes from the device.
 
 = Writing data =
 
-There are two ways of writing data to the device. In bulk or byte by byte.
+There are two ways of writing data to the device. In bulk or one byte at a time.
 
 == Writing a single byte ==
 
 To write a single byte, we send an 8 byte message with the following layout.
 
 || *Index* || *Byte* || *Comment* ||
-|| 0       || 0xA2   || Indicates that this is a write operation.
+|| 0       || 0xA2   || Indicates that this is a write operation. ||
 || 1	   || Offset high byte || The memory address to write to, high byte. ||
 || 2       || Offset low byte  || The memory address to write to, low byte.  ||
 || 3       || 0x20 || Indicates end of offset. ||
