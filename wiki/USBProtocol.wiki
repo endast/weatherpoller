@@ -1,4 +1,4 @@
-#summary A guide on how the USB protocol that the Weather Display uses.
+#summary A description of the weather display USB protocol.
 #labels Protocol,USB,Weatherstation
 
 = Introduction =
