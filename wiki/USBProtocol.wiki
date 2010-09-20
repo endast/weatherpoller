@@ -1,0 +1,55 @@
+#summary A guide on how the USB protocol that the Weather Display uses.
+#labels Protocol,USB,Weatherstation
+
+= Introduction =
+
+First off, this protocol description is based on USB logs sniffed using [http://sourceforge.net/projects/usbsnoop/ SnoopyPro] while running the windows program EasyWeather that comes with the device. wwsr.c written by [http://www.pendec.dk/weatherstation2007.htm Michael Pendec] was my inspiration to understand further exactly how the protocol works. 
+
+This was my first adventure with any USB communication, so this description might not get all the facts straight, if you find any errors please contact me.
+
+= Basics =
+
+* All communication to the device is sent in 8 byte blocks.
+* When data is read, it is done in 32 byte blocks.
+* The layout of the memory can be found here MemoryMap.
+
+= Reading data =
+
+To read data from the device a CLASS_INTERFACE message containing 8 bytes is sent. These consist of 4 bytes which is repeated twice. This message specifies the 2 byte memory offset that data should be read from.
+
+|| *Index* || *Byte* || *Comment* ||
+|| 0       || 0xA1   || Indicates that this is a read operation.
+|| 1	   || Offset high byte || The memory address to read from, high byte. ||
+|| 2       || Offset low byte  || The memory address to read from, low byte.  ||
+|| 3       || 0x20 || Indicates end of offset. ||
+|| ...     || ... || The same bytes are repeated again. ||
+
+Example: 0xA1 0x00 0x40 0x20 0xA1 0x00 0x40 0x20
+
+After this message has been sent we can now read 32 bytes from the device.
+
+= Writing data =
+
+There are two ways of writing data to the device. In bulk or byte by byte.
+
+== Writing a single byte ==
+
+To write a single byte, we send an 8 byte message with the following layout.
+
+|| *Index* || *Byte* || *Comment* ||
+|| 0       || 0xA2   || Indicates that this is a write operation.
+|| 1	   || Offset high byte || The memory address to write to, high byte. ||
+|| 2       || Offset low byte  || The memory address to write to, low byte.  ||
+|| 3       || 0x20 || Indicates end of offset. ||
+|| 4       || 0xA2 || Indicates that this is a write operation. ||
+|| 5       || Data || The byte to write. ||
+|| 6       || 0x00 || ||
+|| 7       || 0x20 || ||
+
+== Writing in bulk ==
+
+To write to the device, the exact same method as reading is used, except that the first byte is 0xA0 instead of 0xA1. And instead of reading 32 bytes, we write the 32 bytes we want to change at that memory address.
+
+After the data has been written, we should read 8 bytes which should all be 0xA5, meaning the device acknowledges the write.
+
+To further indicate to the device a setting has been changed, we should write 0xAA to offset 0x1A (using the single byte method described above), which in turn is also acknowledged by an 8 byte 0xA5 message.
