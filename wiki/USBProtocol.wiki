@@ -9,16 +9,16 @@ This was my first adventure with any USB communication, so this description migh
 
 = Basics =
 
-* All communication to the device is sent in 8 byte blocks.
-* When data is read, it is done in 32 byte blocks.
-* The layout of the memory can be found here MemoryMap.
+  * All communication to the device is sent in 8 byte blocks.
+  * When data is read, it is done in 32 byte blocks.
+  * The layout of the memory can be found here MemoryMap.
 
 = Reading data =
 
 To read data from the device a CLASS_INTERFACE message containing 8 bytes is sent. These consist of 4 bytes which is repeated twice. This message specifies the 2 byte memory offset that data should be read from.
 
 || *Index* || *Byte* || *Comment* ||
-|| 0       || 0xA1   || Indicates that this is a read operation.
+|| 0       || 0xA1   || Indicates that this is a read operation. ||
 || 1	   || Offset high byte || The memory address to read from, high byte. ||
 || 2       || Offset low byte  || The memory address to read from, low byte.  ||
 || 3       || 0x20 || Indicates end of offset. ||
